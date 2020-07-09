@@ -215,7 +215,7 @@ namespace RelativeTopSpeed
 									float speed = grid.Physics.Speed;
 									float cruiseSpeed = GetCruiseSpeed(mass, grid.GridSizeEnum == MyCubeSize.Large);
 
-									MyAPIGateway.Utilities.ShowNotification($"Mass: {mass}  Cruise: {cruiseSpeed.ToString("n3")} Boost: {((speed - cruiseSpeed >= 0) ? (speed - cruiseSpeed).ToString("n3") : "0.000")}", 1);
+									MyAPIGateway.Utilities.ShowNotification($"飞船质量: {mass}  巡航速度: {cruiseSpeed.ToString("n3")} 加力: {((speed - cruiseSpeed >= 0) ? (speed - cruiseSpeed).ToString("n3") : "0.000")}", 1);
 								}
 							}
 
