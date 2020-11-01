@@ -17,6 +17,7 @@ namespace RelativeTopSpeed
         public const string Filename = "RelativeTopSpeed.cfg";
 
         public static readonly Settings Default = new Settings() {
+            EnableBoosting = true,
             IgnoreGridsWithoutThrust = true,
             ParachuteDeployHeight = 400,
             SpeedLimit = 140,
@@ -31,11 +32,11 @@ namespace RelativeTopSpeed
 			SmallGrid_MaxBoostSpeed = 140,
 			SmallGrid_ResistanceMultiplyer = 1f,
 			SmallGrid_MinMass = 10000,
-			SmallGrid_MaxMass = 400000
+			SmallGrid_MaxMass = 400000,
 		};
 
-		[XmlIgnore]
-		public bool IsInitialized = false;
+        [ProtoMember(1)]
+        public bool EnableBoosting { get; set; }
 
         [ProtoMember(2)]
         public bool IgnoreGridsWithoutThrust { get; set; }
@@ -233,7 +234,7 @@ namespace RelativeTopSpeed
             Settings s = null;
             try
             {
-                try
+                if (MyAPIGateway.Utilities.FileExistsInWorldStorage(Filename, typeof(Settings)))
                 {
                     MyLog.Default.Info("[RelativeTopSpeed] Loading settings from world storage");
                     TextReader reader = MyAPIGateway.Utilities.ReadFileInWorldStorage(Filename, typeof(Settings));
@@ -244,26 +245,26 @@ namespace RelativeTopSpeed
                     Validate(ref s);
                     Save(s);
                 }
-                catch (Exception e) 
+                else
                 {
                     MyLog.Default.Info("[RelativeTopSpeed] Config file not found. Loading from local storage");
-                    if (MyAPIGateway.Utilities.FileExistsInLocalStorage(Filename, typeof(Settings)))
-                    {
-                        MyLog.Default.Info("[RelativeTopSpeed] Loading settings from local storage");
-                        TextReader reader = MyAPIGateway.Utilities.ReadFileInLocalStorage(Filename, typeof(Settings));
-                        string text = reader.ReadToEnd();
-                        reader.Close();
+					if (MyAPIGateway.Utilities.FileExistsInLocalStorage(Filename, typeof(Settings)))
+					{
+						MyLog.Default.Info("[RelativeTopSpeed] Loading settings from local storage");
+						TextReader reader = MyAPIGateway.Utilities.ReadFileInLocalStorage(Filename, typeof(Settings));
+						string text = reader.ReadToEnd();
+						reader.Close();
 
-                        s = MyAPIGateway.Utilities.SerializeFromXML<Settings>(text);
-                        Validate(ref s);
-                        Save(s);
-                    }
-                    else
-                    {
-                        MyLog.Default.Info("[RelativeTopSpeed] Config file not found. Loading defaults");
-                        s = Default;
-                        Save(s);
-                    }
+						s = MyAPIGateway.Utilities.SerializeFromXML<Settings>(text);
+						Validate(ref s);
+						Save(s);
+					}
+					else
+					{
+						MyLog.Default.Info("[RelativeTopSpeed] Config file not found. Loading defaults");
+						s = Default;
+						Save(s);
+					}
                 }
             }
             catch (Exception e)
@@ -276,7 +277,6 @@ namespace RelativeTopSpeed
             MyDefinitionManager.Static.EnvironmentDefinition.LargeShipMaxSpeed = s.SpeedLimit;
             MyDefinitionManager.Static.EnvironmentDefinition.SmallShipMaxSpeed = s.SpeedLimit;
             s.CalculateCurve();
-			s.IsInitialized = true;
             return s;
         }
 
